@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700;800&family=Bricolage+Grotesque:wght@400;600;700;800&display=swap');
+
+:root {
+  --fork-red: #C8102E;
+  --fork-red-dark: #9B0B22;
+  --fork-red-light: #FFE8ED;
+  --fork-gold: #F5C518;
+  --fork-cream: #FFF8F0;
+  --fork-ink: #1A1A1A;
+  --fork-muted: #6B6B6B;
+  --fork-border: #EAE6DF;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--fork-ink);
+  background: var(--fork-cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, .serif {
+  font-family: 'Playfair Display', Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+.display-font {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  letter-spacing: -0.03em;
+}
+
+::selection {
+  background: var(--fork-red);
+  color: #fff;
+}
+
+/* Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee 40s linear infinite;
+}
+
+/* Float animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+.float-anim { animation: float 5s ease-in-out infinite; }
+
+/* Reveal on hover for cards */
+.card-tilt {
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.5s ease;
+}
+.card-tilt:hover {
+  transform: translateY(-6px) rotate(-0.5deg);
+  box-shadow: 0 30px 60px -20px rgba(200, 16, 46, 0.25);
+}
+
+.img-zoom {
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.group:hover .img-zoom {
+  transform: scale(1.08);
+}
+
+/* Gradient text */
+.text-gradient-red {
+  background: linear-gradient(135deg, #C8102E 0%, #E63946 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Grain */
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  opacity: 0.08;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+/* Ticker dot */
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: #C8102E;
+  box-shadow: 0 0 0 0 rgba(200, 16, 46, 0.6);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(200, 16, 46, 0.6); }
+  70% { box-shadow: 0 0 0 12px rgba(200, 16, 46, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(200, 16, 46, 0); }
+}
+
+/* Underline hover on nav */
+.nav-link {
+  position: relative;
+  transition: color 0.2s ease;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background: var(--fork-red);
+  transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+/* Button primary */
+.btn-primary {
+  background: var(--fork-red);
+  color: #fff;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.3s ease;
+}
+.btn-primary:hover {
+  background: var(--fork-red-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -10px rgba(200, 16, 46, 0.6);
+}
+.btn-ghost {
+  background: transparent;
+  border: 1.5px solid var(--fork-ink);
+  color: var(--fork-ink);
+  border-radius: 9999px;
+  padding: 10px 22px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-ghost:hover {
+  background: var(--fork-ink);
+  color: var(--fork-cream);
+}
+
+@layer base {
+  :root {
+    --background: 38 33% 97%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 352 77% 43%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 38 30% 94%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 38 20% 92%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 49 91% 53%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 38 25% 88%;
+    --input: 38 25% 88%;
+    --ring: 352 77% 43%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+}
