@@ -419,6 +419,12 @@
         ? `${item.cuisine} • ${item.city} • ${item.price_range}`
         : `${item.city} • Hôtel ${item.stars_hotel}★`;
 
+      // On privilégie un slug si présent (données Mongo/UI). Sinon fallback sur l'id.
+      const slug = item.slug || item.id || "";
+      const targetUrl = isRestaurant
+        ? `/restaurants/${encodeURIComponent(slug)}`
+        : `/hotels`;
+
       return el("div", { class: "mg-parcours-result-card" }, [
         el("img", {
           class: "mg-parcours-result-card__img",
@@ -433,7 +439,16 @@
           el("p", { class: "mg-parcours-desc", text: item.description }),
           el(
             "button",
-            { class: "mg-parcours-primary-btn mg-parcours-cta", type: "button" },
+            {
+              class: "mg-parcours-primary-btn mg-parcours-cta",
+              type: "button",
+              onclick: () => {
+                // Ferme la modal avant de naviguer
+                close();
+                // Navigation (React Router est basé sur history)
+                window.location.assign(targetUrl);
+              },
+            },
             ["Réserver"]
           ),
         ]),
