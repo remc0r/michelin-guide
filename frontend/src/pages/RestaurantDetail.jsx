@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { restaurants } from "../mock";
+import { restaurants as mockRestaurants } from "../mock";
 import { Star, MapPin, Clock, Phone, Globe, Bookmark, Share2, ArrowLeft, Calendar, Users, ChevronRight } from "lucide-react";
 import RestaurantCard from "../components/RestaurantCard";
+import { fetchRestaurantBySlug, fetchRestaurants } from "../api/restaurants";
 
 const StarRow = ({ count }) => (
   <div className="flex gap-1">
@@ -17,12 +18,52 @@ const StarRow = ({ count }) => (
 const RestaurantDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const r = restaurants.find(x => x.slug === slug);
+  const [r, setR] = useState(null);
+  const [similar, setSimilar] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [activeImg, setActiveImg] = useState(0);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const doc = await fetchRestaurantBySlug(slug);
+        if (!cancelled && doc) {
+          setR(doc);
+          try {
+            const all = await fetchRestaurants({ city: doc.city });
+            if (!cancelled && Array.isArray(all)) {
+              setSimilar(all.filter((x) => x.slug !== doc.slug).slice(0, 3));
+            }
+          } catch (e) {
+            // fallback similar
+            setSimilar(mockRestaurants.filter((x) => x.slug !== doc.slug && x.city === doc.city).slice(0, 3));
+          }
+        } else if (!cancelled) {
+          const local = mockRestaurants.find((x) => x.slug === slug) || null;
+          setR(local);
+          if (local) setSimilar(mockRestaurants.filter((x) => x.slug !== local.slug && x.city === local.city).slice(0, 3));
+        }
+      } catch (e) {
+        if (!cancelled) {
+          const local = mockRestaurants.find((x) => x.slug === slug) || null;
+          setR(local);
+          if (local) setSimilar(mockRestaurants.filter((x) => x.slug !== local.slug && x.city === local.city).slice(0, 3));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  if (loading) return <div className="pt-[140px] px-6 text-center">Chargement…</div>;
   if (!r) return <div className="pt-[140px] px-6 text-center">Restaurant non trouvé</div>;
-  const similar = restaurants.filter(x => x.id !== r.id && x.city === r.city).slice(0,3);
 
   return (
     <div className="pt-[104px]">

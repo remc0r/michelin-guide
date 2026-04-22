@@ -1,14 +1,31 @@
-import React, { useState, useMemo } from "react";
-import { restaurants, filters, cities } from "../mock";
+import React, { useEffect, useMemo, useState } from "react";
+import { restaurants as mockRestaurants, filters, cities } from "../mock";
 import RestaurantCard from "../components/RestaurantCard";
 import { SlidersHorizontal, X, Search } from "lucide-react";
+import { fetchRestaurants } from "../api/restaurants";
 
 const Restaurants = () => {
+  const [restaurants, setRestaurants] = useState(mockRestaurants);
   const [selectedStars, setSelectedStars] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState([]);
   const [selectedCity, setSelectedCity] = useState("");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("relevance");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const list = await fetchRestaurants();
+        if (!cancelled && Array.isArray(list) && list.length) setRestaurants(list);
+      } catch (e) {
+        // fallback: garder les mocks
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const toggle = (arr, setArr, val) => {
     setArr(arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val]);
@@ -26,7 +43,7 @@ const Restaurants = () => {
     if (sort === "price-low") list.sort((a,b) => a.price - b.price);
     if (sort === "price-high") list.sort((a,b) => b.price - a.price);
     return list;
-  }, [query, selectedCity, selectedStars, selectedPrice, sort]);
+  }, [restaurants, query, selectedCity, selectedStars, selectedPrice, sort]);
 
   const clearAll = () => { setSelectedStars([]); setSelectedPrice([]); setSelectedCity(""); setQuery(""); };
   const activeCount = selectedStars.length + selectedPrice.length + (selectedCity ? 1 : 0) + (query ? 1 : 0);

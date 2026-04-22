@@ -121,6 +121,9 @@ const Home = () => {
             );
           })}
         </div>
+
+        {/* PARCOURS (hook pour injection vanilla JS, intégré au site) */}
+        <div id="mg-parcours-inline" className="mt-10" />
       </section>
 
       {/* FEATURED */}
