@@ -4,7 +4,8 @@ import { toast } from 'sonner';
 import { useReservations } from '../hooks/useReservations';
 import { createReview, getReviewByReservation } from '../api/reviews';
 
-const REVIEW_DEFAULT = { rating: 5, comment: '' };
+const MAX_REVIEW_IMAGES = 4;
+const createDefaultReviewDraft = () => ({ rating: 5, comment: '', images: [] });
 
 const formatReservationDate = (value) => {
   if (!value) {
@@ -96,21 +97,32 @@ const MyReservationsPage = () => {
     setReviewDrafts((prev) => ({
       ...prev,
       [reservationId]: {
-        ...(prev[reservationId] || REVIEW_DEFAULT),
+        ...(prev[reservationId] || createDefaultReviewDraft()),
         [field]: value
       }
     }));
   };
 
+  const handleDraftImagesChange = (reservationId, files) => {
+    const selectedFiles = Array.from(files || []).slice(0, MAX_REVIEW_IMAGES);
+
+    if ((files || []).length > MAX_REVIEW_IMAGES) {
+      toast.error(`Vous pouvez ajouter jusqu'a ${MAX_REVIEW_IMAGES} images.`);
+    }
+
+    handleDraftChange(reservationId, 'images', selectedFiles);
+  };
+
   const handleSubmitReview = async (reservationId) => {
-    const draft = reviewDrafts[reservationId] || REVIEW_DEFAULT;
+    const draft = reviewDrafts[reservationId] || createDefaultReviewDraft();
 
     try {
       setSubmittingReviewFor(reservationId);
       const newReview = await createReview({
         reservationId,
         rating: Number(draft.rating),
-        comment: draft.comment
+        comment: draft.comment,
+        images: draft.images || []
       });
 
       setReviewsByReservationId((prev) => ({
@@ -119,7 +131,7 @@ const MyReservationsPage = () => {
       }));
       setReviewDrafts((prev) => ({
         ...prev,
-        [reservationId]: REVIEW_DEFAULT
+        [reservationId]: createDefaultReviewDraft()
       }));
       toast.success('Avis enregistre avec succes.');
     } catch (reviewError) {
@@ -156,7 +168,7 @@ const MyReservationsPage = () => {
           <div className="space-y-4">
             {sortedReservations.map((reservation) => {
               const reservationReview = reviewsByReservationId[reservation._id];
-              const draft = reviewDrafts[reservation._id] || REVIEW_DEFAULT;
+              const draft = reviewDrafts[reservation._id] || createDefaultReviewDraft();
 
               return (
                 <div key={reservation._id} className="bg-white border border-gray-200 rounded-xl p-5">
@@ -193,6 +205,18 @@ const MyReservationsPage = () => {
                           {reservationReview.comment && (
                             <p className="text-sm text-gray-700 mt-1">{reservationReview.comment}</p>
                           )}
+                          {Array.isArray(reservationReview.imageUrls) && reservationReview.imageUrls.length > 0 && (
+                            <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+                              {reservationReview.imageUrls.map((imageUrl) => (
+                                <img
+                                  key={imageUrl}
+                                  src={imageUrl}
+                                  alt="Photo de l'avis"
+                                  className="h-20 w-full rounded-md object-cover border border-green-100"
+                                />
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div className="space-y-3">
@@ -218,6 +242,29 @@ const MyReservationsPage = () => {
                             className="w-full border border-gray-300 rounded-lg px-3 py-2"
                             placeholder="Partagez votre experience..."
                           />
+
+                          <label className="block text-sm font-medium text-gray-700">
+                            Photos ({(draft.images || []).length}/{MAX_REVIEW_IMAGES})
+                          </label>
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            multiple
+                            onChange={(event) => handleDraftImagesChange(reservation._id, event.target.files)}
+                            className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
+                          />
+                          {(draft.images || []).length > 0 && (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                              {(draft.images || []).map((file) => (
+                                <div
+                                  key={`${file.name}-${file.lastModified}`}
+                                  className="text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md px-2 py-1 truncate"
+                                >
+                                  {file.name}
+                                </div>
+                              ))}
+                            </div>
+                          )}
 
                           <button
                             onClick={() => handleSubmitReview(reservation._id)}

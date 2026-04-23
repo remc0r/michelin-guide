@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { register } from '../api/auth';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { AlertCircle, CheckCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -60,7 +61,7 @@ const RegisterPage = () => {
       setLoading(true);
       setError('');
 
-      const data = await register({
+      await register({
         username: formData.username.trim(),
         email: formData.email.trim(),
         password: formData.password,
@@ -68,9 +69,6 @@ const RegisterPage = () => {
         lastName: formData.lastName.trim()
       });
 
-      // Store token and user data
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
 
       setSuccess(true);
 

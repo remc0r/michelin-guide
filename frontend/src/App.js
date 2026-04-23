@@ -17,13 +17,20 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { Toaster } from "./components/ui/sonner";
+import { useAuth } from "./contexts/AuthContext";
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  if (!token) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return null;
+  }
+
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
+
   return children;
 };
 
