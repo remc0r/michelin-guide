@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { getFeed } from '../api/feed';
 import { Skeleton } from './ui/skeleton';
 import { Button } from './ui/button';
+import ActivityCard from './ActivityCard';
 
 const Feed = ({ showOwnActivities = false }) => {
   const [activities, setActivities] = useState([]);
@@ -132,33 +133,7 @@ const Feed = ({ showOwnActivities = false }) => {
 
       <div className="space-y-6">
         {activities.map((activity) => (
-          <div key={activity._id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="flex items-start gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="text-sm font-medium text-gray-700">
-                    {activity.user?.profile?.firstName || activity.user?.username}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {new Date(activity.createdAt).toLocaleString('fr-FR')}
-                  </div>
-                </div>
-
-                <div className="mt-4">
-                  <div className="font-semibold text-gray-800 mb-2">
-                    {activity.type === 'review' && 'A laisse un avis'}
-                    {activity.type === 'visit' && 'A visite un restaurant'}
-                    {activity.type === 'reservation' && 'A reserve une table'}
-                  </div>
-                  {activity.data?.restaurantSlug && (
-                    <div className="text-sm text-gray-600">
-                      Restaurant: {activity.data.restaurantSlug}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+          <ActivityCard key={activity._id} activity={activity} />
         ))}
       </div>
 

@@ -1,39 +1,49 @@
 const friendsRepository = require('../repositories/friendsRepository');
 const authRepository = require('../repositories/authRepository');
 
+function createHttpError(message, statusCode) {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  return error;
+}
+
 /**
  * Send friend request to another user
  */
 async function sendFriendRequest(userId, friendUsername) {
+  if (!userId) {
+    throw createHttpError('Unauthorized', 401);
+  }
+
   // Find the friend user
   const friendUser = await authRepository.findByUsername(friendUsername);
   if (!friendUser) {
-    throw new Error('User not found');
+    throw createHttpError('User not found', 404);
   }
 
   // Check if trying to add yourself
   if (userId.toString() === friendUser._id.toString()) {
-    throw new Error('Cannot add yourself as a friend');
+    throw createHttpError('Cannot add yourself as a friend', 400);
   }
 
   // Check if already friends
   const existingFriendship = await friendsRepository.findFriendship(userId, friendUser._id);
   if (existingFriendship && existingFriendship.status === 'accepted') {
-    throw new Error('Already friends with this user');
+    throw createHttpError('Already friends with this user', 409);
   }
 
   // Check if request already exists
   const existingRequest = await friendsRepository.findFriendship(userId, friendUser._id);
   if (existingRequest) {
     if (existingRequest.status === 'pending') {
-      throw new Error('Friend request already pending');
+      throw createHttpError('Friend request already pending', 409);
     }
   }
 
   // Create friend request
   const friendship = await friendsRepository.createFriendship({
-    requesterId: userId,
-    receiverId: friendUser._id,
+    requesterId: userId.toString(),
+    receiverId: friendUser._id.toString(),
     status: 'pending',
     createdAt: new Date()
   });
@@ -45,24 +55,41 @@ async function sendFriendRequest(userId, friendUsername) {
  * Accept friend request
  */
 async function acceptFriendRequest(userId, friendUserId) {
-  const friendship = await friendsRepository.findFriendship(friendUserId, userId);
+  if (!userId) {
+    throw createHttpError('Unauthorized', 401);
+  }
+
+  let friendship = null;
+
+  // Prefer an explicit friendship identifier when provided by the client.
+  if (typeof friendsRepository.findFriendshipById === 'function') {
+    friendship = await friendsRepository.findFriendshipById(friendUserId);
+  }
 
   if (!friendship) {
-    throw new Error('Friend request not found');
+    friendship = await friendsRepository.findFriendship(friendUserId, userId);
+  }
+
+  if (!friendship) {
+    throw createHttpError('Friend request not found', 404);
   }
 
   if (friendship.status !== 'pending') {
-    throw new Error('This request has already been processed');
+    throw createHttpError('This request has already been processed', 409);
   }
 
-  if (friendship.receiverId.toString() !== userId.toString()) {
-    throw new Error('Not authorized to accept this request');
+  if (!friendship.receiverId || friendship.receiverId.toString() !== userId.toString()) {
+    throw createHttpError('Not authorized to accept this request', 403);
   }
 
   const updatedFriendship = await friendsRepository.updateFriendshipStatus(
     friendship._id,
     'accepted'
   );
+
+  if (!updatedFriendship) {
+    throw createHttpError('Failed to update friend request', 500);
+  }
 
   return updatedFriendship;
 }

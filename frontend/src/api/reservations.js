@@ -1,5 +1,5 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 import { getAuthHeaders } from './auth';
+import { API_BASE_URL } from './baseUrl';
 
 /**
  * Create reservation

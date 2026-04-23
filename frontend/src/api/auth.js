@@ -1,6 +1,5 @@
-import { safeFetch, getUserFriendlyErrorMessage, APIError } from '../utils/apiErrorHandler';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+import { safeFetch, getUserFriendlyErrorMessage } from '../utils/apiErrorHandler';
+import { API_BASE_URL } from './baseUrl';
 
 /**
  * User registration
@@ -9,6 +8,10 @@ export async function register(userData) {
   try {
     const response = await safeFetch(`${API_BASE_URL}/api/auth/register`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
       body: JSON.stringify(userData),
     });
 
@@ -25,6 +28,10 @@ export async function login(email, password) {
   try {
     const response = await safeFetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
       body: JSON.stringify({ email, password }),
     });
 
@@ -38,6 +45,10 @@ export async function login(email, password) {
  * Get current user info
  */
 export async function getCurrentUser(token) {
+  if (!token) {
+    throw new Error('Failed to get user info');
+  }
+
   try {
     const response = await safeFetch(`${API_BASE_URL}/api/auth/me`, {
       headers: {

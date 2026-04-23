@@ -4,6 +4,14 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 
 const AddFriend = ({ onSendRequest }) => {
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('user') || 'null');
+    } catch (error) {
+      return null;
+    }
+  })();
+
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -16,7 +24,7 @@ const AddFriend = ({ onSendRequest }) => {
       return;
     }
 
-    if (username.trim() === localStorage.getItem('user')?.username) {
+    if (username.trim() === currentUser?.username) {
       setError('Vous ne pouvez pas vous ajouter vous-même');
       return;
     }
@@ -92,7 +100,7 @@ const AddFriend = ({ onSendRequest }) => {
           <ul className="text-sm text-gray-600 space-y-2">
             <li>• Demandez le nom d'utilisateur à vos amis</li>
             <li>• Partagez votre nom d'utilisateur : <span className="font-mono bg-white px-2 py-1 rounded border">
-              {localStorage.getItem('user')?.username || 'votre_nom_d_utilisateur'}
+              {currentUser?.username || 'votre_nom_d_utilisateur'}
             </span></li>
             <li>• Vos amis doivent vous envoyer une demande d'ami</li>
           </ul>

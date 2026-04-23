@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCheck, UserX } from 'lucide-react';
+import { UserCheck } from 'lucide-react';
 import { Button } from './ui/button';
 
 const FriendRequests = ({ requests = [], onAcceptRequest, emptyMessage }) => {
@@ -33,7 +33,7 @@ const FriendRequests = ({ requests = [], onAcceptRequest, emptyMessage }) => {
     <div className="divide-y divide-gray-200">
       {requests.map((request) => (
         <div
-          key={request._id}
+          key={request.friendshipId || request._id}
           className="flex items-center gap-4 p-6 hover:bg-gray-50 transition-colors"
         >
           {/* Avatar */}
@@ -72,7 +72,7 @@ const FriendRequests = ({ requests = [], onAcceptRequest, emptyMessage }) => {
             <Button
               onClick={() => {
                 if (confirm(`Accepter la demande de ${request.profile?.firstName || request.username} ?`)) {
-                  onAcceptRequest(request._id);
+                  onAcceptRequest(request.friendshipId || request._id);
                 }
               }}
               className="bg-green-600 hover:bg-green-700 text-white"

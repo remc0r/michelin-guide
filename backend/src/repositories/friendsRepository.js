@@ -1,4 +1,44 @@
+const { ObjectId } = require('mongodb');
 const { getDb } = require('../db/mongo');
+
+function toObjectIdIfPossible(value) {
+  if (value === undefined || value === null) {
+    return null;
+  }
+
+  const stringValue = String(value);
+  if (!ObjectId.isValid(stringValue)) {
+    return null;
+  }
+
+  return new ObjectId(stringValue);
+}
+
+function normalizeIdCandidates(value) {
+  if (value === undefined || value === null) {
+    return [];
+  }
+
+  const candidates = [value, String(value)];
+  const objectId = toObjectIdIfPossible(value);
+  if (objectId) {
+    candidates.push(objectId);
+  }
+
+  const seen = new Set();
+  return candidates.filter((candidate) => {
+    const key = candidate instanceof ObjectId
+      ? `oid:${candidate.toHexString()}`
+      : `str:${String(candidate)}`;
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
 
 // Mock data fallback
 const mockFriendships = [];
@@ -10,12 +50,20 @@ const mockUsers = [];
 async function findFriendship(userId1, userId2) {
   try {
     const db = getDb();
+    const userId1Candidates = normalizeIdCandidates(userId1);
+    const userId2Candidates = normalizeIdCandidates(userId2);
     const friendship = await db
       .collection('friendships')
       .findOne({
         $or: [
-          { requesterId: userId1, receiverId: userId2 },
-          { requesterId: userId2, receiverId: userId1 }
+          {
+            requesterId: { $in: userId1Candidates },
+            receiverId: { $in: userId2Candidates }
+          },
+          {
+            requesterId: { $in: userId2Candidates },
+            receiverId: { $in: userId1Candidates }
+          }
         ]
       });
 
@@ -26,6 +74,21 @@ async function findFriendship(userId1, userId2) {
       (f.requesterId === userId1 && f.receiverId === userId2) ||
       (f.requesterId === userId2 && f.receiverId === userId1)
     );
+  }
+}
+
+/**
+ * Find friendship by its own ID
+ */
+async function findFriendshipById(friendshipId) {
+  try {
+    const db = getDb();
+    const friendshipIdCandidates = normalizeIdCandidates(friendshipId);
+    return db
+      .collection('friendships')
+      .findOne({ _id: { $in: friendshipIdCandidates } });
+  } catch (error) {
+    return mockFriendships.find((friendship) => String(friendship._id) === String(friendshipId));
   }
 }
 
@@ -110,12 +173,13 @@ async function deleteFriendship(friendshipId) {
 async function findAcceptedFriendships(userId) {
   try {
     const db = getDb();
+    const userIdCandidates = normalizeIdCandidates(userId);
     const friendships = await db
       .collection('friendships')
       .find({
         $or: [
-          { requesterId: userId },
-          { receiverId: userId }
+          { requesterId: { $in: userIdCandidates } },
+          { receiverId: { $in: userIdCandidates } }
         ],
         status: 'accepted'
       })
@@ -137,10 +201,11 @@ async function findAcceptedFriendships(userId) {
 async function findPendingRequests(userId) {
   try {
     const db = getDb();
+    const userIdCandidates = normalizeIdCandidates(userId);
     const friendships = await db
       .collection('friendships')
       .find({
-        receiverId: userId,
+        receiverId: { $in: userIdCandidates },
         status: 'pending'
       })
       .toArray();
@@ -160,10 +225,16 @@ async function findPendingRequests(userId) {
  */
 async function getUsersByIds(userIds) {
   try {
+    if (!Array.isArray(userIds) || userIds.length === 0) {
+      return [];
+    }
+
+    const normalizedIds = userIds.flatMap((id) => normalizeIdCandidates(id));
+
     const db = getDb();
     const users = await db
       .collection('users')
-      .find({ _id: { $in: userIds } })
+      .find({ _id: { $in: normalizedIds } })
       .toArray();
 
     return users;
@@ -175,6 +246,7 @@ async function getUsersByIds(userIds) {
 
 module.exports = {
   findFriendship,
+  findFriendshipById,
   createFriendship,
   updateFriendshipStatus,
   deleteFriendship,

@@ -78,6 +78,9 @@ export const safeFetch = async (url, options = {}) => {
 
     return await handleFetchError(response);
   } catch (error) {
+    if (error instanceof APIError) {
+      throw error;
+    }
     throw handleNetworkError(error);
   }
 };

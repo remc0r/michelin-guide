@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Feed from "./pages/Feed";
 import Friends from "./pages/Friends";
+import MyReservations from "./pages/MyReservations";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -40,7 +41,11 @@ function App() {
             <Route path="/hotels" element={<Hotels />} />
             <Route path="/magazine" element={<Magazine />} />
             <Route path="/magazine/:slug" element={<ArticleDetail />} />
-            <Route path="/reservation/:slug" element={<Reservation />} />
+            <Route path="/reservation/:slug" element={
+              <ProtectedRoute>
+                <Reservation />
+              </ProtectedRoute>
+            } />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
@@ -53,6 +58,11 @@ function App() {
             <Route path="/friends" element={
               <ProtectedRoute>
                 <Friends />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-reservations" element={
+              <ProtectedRoute>
+                <MyReservations />
               </ProtectedRoute>
             } />
             <Route path="/profile" element={

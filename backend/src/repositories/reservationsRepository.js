@@ -1,4 +1,31 @@
+const { ObjectId } = require('mongodb');
 const { getDb } = require('../db/mongo');
+
+function normalizeIdCandidates(value) {
+  if (value === undefined || value === null) {
+    return [];
+  }
+
+  const candidates = [value, String(value)];
+  const stringValue = String(value);
+  if (ObjectId.isValid(stringValue)) {
+    candidates.push(new ObjectId(stringValue));
+  }
+
+  const seen = new Set();
+  return candidates.filter((candidate) => {
+    const key = candidate instanceof ObjectId
+      ? `oid:${candidate.toHexString()}`
+      : `str:${String(candidate)}`;
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
 
 // Mock data fallback
 const mockReservations = [];
@@ -36,7 +63,7 @@ async function getReservationsByUserId(userId, filters = {}) {
   try {
     const db = getDb();
 
-    const query = { userId };
+    const query = { userId: { $in: normalizeIdCandidates(userId) } };
     if (filters.status) {
       query.status = filters.status;
     }
@@ -50,7 +77,7 @@ async function getReservationsByUserId(userId, filters = {}) {
     return reservations;
   } catch (error) {
     // Fallback to mock data
-    let filteredReservations = mockReservations.filter(r => r.userId === userId);
+    let filteredReservations = mockReservations.filter(r => String(r.userId) === String(userId));
 
     if (filters.status) {
       filteredReservations = filteredReservations.filter(r => r.status === filters.status);
@@ -70,12 +97,12 @@ async function getReservationById(reservationId) {
     const db = getDb();
     const reservation = await db
       .collection('reservations')
-      .findOne({ _id: reservationId });
+      .findOne({ _id: { $in: normalizeIdCandidates(reservationId) } });
 
     return reservation;
   } catch (error) {
     // Fallback to mock data
-    return mockReservations.find(r => r._id === reservationId);
+    return mockReservations.find(r => String(r._id) === String(reservationId));
   }
 }
 
@@ -97,7 +124,7 @@ async function updateReservationStatus(reservationId, status) {
     const updatedReservation = await db
       .collection('reservations')
       .findOneAndUpdate(
-        { _id: reservationId },
+        { _id: { $in: normalizeIdCandidates(reservationId) } },
         { $set: updateData },
         { returnDocument: 'after' }
       );
@@ -105,7 +132,7 @@ async function updateReservationStatus(reservationId, status) {
     return updatedReservation;
   } catch (error) {
     // Fallback to mock data
-    const reservation = mockReservations.find(r => r._id === reservationId);
+    const reservation = mockReservations.find(r => String(r._id) === String(reservationId));
     if (reservation) {
       Object.assign(reservation, updateData);
       return reservation;

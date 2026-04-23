@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Search, Menu, X, MapPin, Heart, User, LogOut } from "lucide-react";
+import { Search, Menu, X, MapPin, Heart, User, LogOut, CalendarDays } from "lucide-react";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -31,7 +31,8 @@ const Navbar = () => {
     { to: "/hotels", label: "Hôtels" },
     { to: "/magazine", label: "Magazine" },
     { to: "/feed", label: "Activité" },
-    { to: "/friends", label: "Amis" }
+    { to: "/friends", label: "Amis" },
+    { to: "/my-reservations", label: "Réservations" }
   ];
 
   const handleLogout = () => {
@@ -106,6 +107,14 @@ const Navbar = () => {
                   >
                     <User className="w-4 h-4" />
                     Mon profil
+                  </Link>
+                  <Link
+                    to="/my-reservations"
+                    className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 transition-colors text-sm"
+                    onClick={() => setUserMenuOpen(false)}
+                  >
+                    <CalendarDays className="w-4 h-4" />
+                    Mes réservations
                   </Link>
                   <button
                     onClick={handleLogout}
