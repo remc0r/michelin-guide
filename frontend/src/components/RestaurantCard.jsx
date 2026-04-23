@@ -75,7 +75,7 @@ const RestaurantCard = ({ r, variant = "default" }) => {
           <div className="flex items-center gap-1">
             <Star className="w-4 h-4 fill-[#F5C518] text-[#F5C518]" />
             <span className="text-sm font-semibold">{r.rating}</span>
-            <span className="text-xs text-[#6B6B6B]">({r.reviews})</span>
+            <span className="text-xs text-[#6B6B6B]">({r.reviews} avis experts)</span>
           </div>
           {r.tags?.slice(0,1).map(t => (
             <span key={t} className="text-xs bg-[#FFE8ED] text-[#C8102E] px-2.5 py-1 rounded-full font-medium">{t}</span>

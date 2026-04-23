@@ -11,6 +11,8 @@ import Reservation from "./pages/Reservation";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { Toaster } from "./components/ui/sonner";
+import Feed from "./pages/Feed";
+
 
 function App() {
   return (
@@ -19,6 +21,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/feed" element={<Feed />} />
           <Route path="/restaurants" element={<Restaurants />} />
           <Route path="/restaurants/:slug" element={<RestaurantDetail />} />
           <Route path="/hotels" element={<Hotels />} />

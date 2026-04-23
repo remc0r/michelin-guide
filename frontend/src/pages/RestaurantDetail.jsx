@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { restaurants } from "../mock";
+import { restaurants, getExpertReviewsForRestaurant } from "../mock";
 import { Star, MapPin, Clock, Phone, Globe, Bookmark, Share2, ArrowLeft, Calendar, Users, ChevronRight } from "lucide-react";
 import RestaurantCard from "../components/RestaurantCard";
 
@@ -23,6 +23,7 @@ const RestaurantDetail = () => {
 
   if (!r) return <div className="pt-[140px] px-6 text-center">Restaurant non trouvé</div>;
   const similar = restaurants.filter(x => x.id !== r.id && x.city === r.city).slice(0,3);
+  const reviews = getExpertReviewsForRestaurant(r.slug);
 
   return (
     <div className="pt-[104px]">
@@ -64,7 +65,7 @@ const RestaurantDetail = () => {
             <span>·</span>
             <span className="flex items-center gap-1"><MapPin className="w-4 h-4"/>{r.neighborhood}, {r.city}</span>
             <span>·</span>
-            <span className="flex items-center gap-1"><Star className="w-4 h-4 fill-[#F5C518] text-[#F5C518]"/><strong>{r.rating}</strong> ({r.reviews} avis)</span>
+            <span className="flex items-center gap-1"><Star className="w-4 h-4 fill-[#F5C518] text-[#F5C518]"/><strong>{r.rating}</strong> ({r.reviews} avis_experts)</span>
           </div>
 
           <div className="flex flex-wrap gap-2 mt-6">
@@ -83,6 +84,34 @@ const RestaurantDetail = () => {
           <div className="mt-12">
             <h2 className="text-2xl font-bold mb-4">La table</h2>
             <p className="text-lg leading-relaxed text-[#1A1A1A]/80">{r.description}</p>
+          </div>
+
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-3">Avis des inspecteurs Michelin</h2>
+            <p className="text-sm text-[#6B6B6B]">
+              Les retours des utilisateurs sont partages uniquement dans leur feed prive entre amis.
+            </p>
+
+            <div className="space-y-4 mt-6">
+              {reviews.length === 0 && (
+                  <div className="bg-white rounded-2xl p-5 border border-[#EAE6DF] text-sm text-[#6B6B6B]">
+                    Aucun avis expert detaille disponible pour ce restaurant.
+                  </div>
+              )}
+
+              {reviews.map((review) => (
+                  <article key={review.id} className="bg-white rounded-2xl p-5 border border-[#EAE6DF]">
+                    <div className="text-xs uppercase tracking-widest text-[#C8102E] font-bold">
+                      {review.inspector}
+                    </div>
+                    <h3 className="text-xl font-bold mt-2">{review.title}</h3>
+                    <p className="text-[#1A1A1A]/80 mt-2 leading-relaxed">{review.excerpt}</p>
+                    <div className="text-xs text-[#6B6B6B] mt-3">
+                      Publie le {new Date(review.publishedAt).toLocaleDateString("fr-FR")}
+                    </div>
+                  </article>
+              ))}
+            </div>
           </div>
 
           <div className="mt-10 grid sm:grid-cols-2 gap-6">

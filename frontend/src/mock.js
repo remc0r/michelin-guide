@@ -363,3 +363,152 @@ export const filters = {
   priceRanges: ["€", "€€", "€€€", "€€€€"],
   cuisines: ["Française", "Italienne", "Japonaise", "Méditerranéenne", "Néo-bistrot", "Végétale", "Fruits de mer"]
 };
+
+export const currentUserId = "u1";
+
+export const users = [
+  {
+    id: "u1",
+    name: "Remco",
+    handle: "remco",
+    avatar:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?crop=entropy&cs=srgb&fm=jpg&q=80",
+    city: "Paris",
+    friendsIds: ["u2", "u3", "u4"],
+  },
+  {
+    id: "u2",
+    name: "Camille",
+    handle: "camillefood",
+    avatar:
+        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?crop=entropy&cs=srgb&fm=jpg&q=80",
+    city: "Paris",
+    friendsIds: ["u1", "u3"],
+  },
+  {
+    id: "u3",
+    name: "Nicolas",
+    handle: "nicoeat",
+    avatar:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=srgb&fm=jpg&q=80",
+    city: "Lyon",
+    friendsIds: ["u1", "u2", "u4"],
+  },
+  {
+    id: "u4",
+    name: "Sarah",
+    handle: "sarahtastes",
+    avatar:
+        "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?crop=entropy&cs=srgb&fm=jpg&q=80",
+    city: "Marseille",
+    friendsIds: ["u1", "u3"],
+  },
+  {
+    id: "u5",
+    name: "Leo",
+    handle: "leo_nomnom",
+    avatar:
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?crop=entropy&cs=srgb&fm=jpg&q=80",
+    city: "Paris",
+    friendsIds: [],
+  },
+];
+
+export const socialPosts = [
+  {
+    id: "p1",
+    authorId: "u2",
+    restaurantSlug: "septime",
+    content:
+        "J'ai mange ici hier soir, ambiance folle et assiettes hyper precises. Vous devriez vraiment y aller.",
+    visibility: "friends",
+    createdAt: "2026-04-22T19:30:00.000Z",
+    likes: 12,
+  },
+  {
+    id: "p2",
+    authorId: "u3",
+    restaurantSlug: "clamato",
+    content:
+        "Ultra cool en mode decontracte, parfait apres le boulot. On a partage toute la carte.",
+    visibility: "friends",
+    createdAt: "2026-04-21T21:10:00.000Z",
+    likes: 8,
+  },
+  {
+    id: "p3",
+    authorId: "u4",
+    restaurantSlug: "frenchie",
+    content:
+        "Service super vivant, cuisine nette et sans chichi. Clairement un spot a refaire.",
+    visibility: "friends",
+    createdAt: "2026-04-20T20:05:00.000Z",
+    likes: 15,
+  },
+  {
+    id: "p4",
+    authorId: "u5",
+    restaurantSlug: "arpege",
+    content:
+        "Magnifique experience. J'ai adore le menu legume.",
+    visibility: "friends",
+    createdAt: "2026-04-20T13:00:00.000Z",
+    likes: 3,
+  },
+];
+
+export const expertReviews = [
+  {
+    id: "er1",
+    restaurantSlug: "septime",
+    inspector: "Inspecteur Michelin - Ile-de-France",
+    title: "Une precision rare dans un format neo-bistrot",
+    excerpt:
+        "Execution millimetree, assaisonnements justes et un menu qui garde une vraie personnalite du debut a la fin.",
+    publishedAt: "2026-03-10",
+  },
+  {
+    id: "er2",
+    restaurantSlug: "arpege",
+    inspector: "Inspecteur Michelin - Paris",
+    title: "Le vegetal pousse a son plus haut niveau",
+    excerpt:
+        "Chaque assiette raconte un terroir maitrise et une lecture sensible des saisons.",
+    publishedAt: "2026-02-25",
+  },
+  {
+    id: "er3",
+    restaurantSlug: "frenchie",
+    inspector: "Inspecteur Michelin - Paris",
+    title: "Regularite et lecture moderne du bistrot",
+    excerpt:
+        "Carte concise, cuisson juste, service alerte. Une table solide pour sa categorie.",
+    publishedAt: "2026-01-14",
+  },
+];
+
+export const getUserById = (id, userList = users) =>
+    userList.find((u) => u.id === id);
+
+export const getRestaurantBySlug = (slug, restaurantList = restaurants) =>
+    restaurantList.find((r) => r.slug === slug);
+
+export const getExpertReviewsForRestaurant = (
+    restaurantSlug,
+    reviewList = expertReviews,
+) => reviewList.filter((r) => r.restaurantSlug === restaurantSlug);
+
+export const getFeedPostsForUser = (
+    viewerId,
+    postList = socialPosts,
+    userList = users,
+) => {
+  const viewer = getUserById(viewerId, userList);
+  const friends = new Set(viewer?.friendsIds || []);
+
+  return postList
+      .filter((p) => p.visibility === "friends")
+      .filter((p) => p.authorId === viewerId || friends.has(p.authorId))
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+};
+

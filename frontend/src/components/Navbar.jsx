@@ -16,6 +16,7 @@ const Navbar = () => {
   useEffect(() => { setOpen(false); }, [location.pathname]);
 
   const links = [
+    { to: "/feed", label: "Feed" },
     { to: "/restaurants", label: "Restaurants" },
     { to: "/hotels", label: "Hôtels" },
     { to: "/magazine", label: "Magazine" }
