@@ -6,7 +6,14 @@ const feedRepository = require('../repositories/feedRepository');
  * Create a new review (only for completed reservations)
  */
 async function createReview(reviewData) {
-  const { userId, reservationId, rating, comment, dishRatings } = reviewData;
+  const {
+    userId,
+    reservationId,
+    rating,
+    comment,
+    dishRatings,
+    imageUrls = []
+  } = reviewData;
 
   // Check if reservation exists and belongs to user
   const reservation = await reservationsRepository.getReservationById(reservationId);
@@ -39,6 +46,7 @@ async function createReview(reviewData) {
     rating,
     comment,
     dishRatings,
+    imageUrls,
     isPublic: false, // Reviews are always private, visible only in friends' feeds
     createdAt: new Date()
   });
@@ -52,7 +60,8 @@ async function createReview(reviewData) {
     data: {
       restaurantSlug: reservation.restaurantSlug,
       rating,
-      comment: comment ? comment.substring(0, 200) : '' // Truncate for feed display
+      comment: comment ? comment.substring(0, 200) : '', // Truncate for feed display
+      imageUrls
     },
     createdAt: new Date()
   });

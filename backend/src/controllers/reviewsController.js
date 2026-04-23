@@ -1,5 +1,48 @@
 const reviewsService = require('../services/reviewsService');
 
+function parseDishRatings(value) {
+  if (!value) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function extractImageUrls(req) {
+  const uploadedImageUrls = (req.files || []).map((file) => {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    return `${baseUrl}/uploads/reviews/${file.filename}`;
+  });
+
+  const bodyImageUrls = Array.isArray(req.body.imageUrls)
+    ? req.body.imageUrls
+    : [];
+
+  return [...bodyImageUrls, ...uploadedImageUrls].slice(0, 4);
+}
+
+function mapUploadError(error) {
+  if (error.code === 'LIMIT_FILE_SIZE') {
+    error.statusCode = 400;
+    error.message = 'Each image must be smaller than 5MB';
+    return;
+  }
+
+  if (error.code === 'LIMIT_FILE_COUNT') {
+    error.statusCode = 400;
+    error.message = 'You can upload up to 4 images';
+  }
+}
+
 /**
  * Create review
  * POST /api/reviews
@@ -7,14 +50,15 @@ const reviewsService = require('../services/reviewsService');
 async function createReview(req, res, next) {
   try {
     const { reservationId, rating, comment, dishRatings } = req.body;
+    const parsedRating = parseInt(rating, 10);
 
-    if (!reservationId || !rating) {
+    if (!reservationId || Number.isNaN(parsedRating)) {
       return res.status(400).json({
         error: 'Reservation ID and rating are required'
       });
     }
 
-    if (rating < 1 || rating > 5) {
+    if (parsedRating < 1 || parsedRating > 5) {
       return res.status(400).json({
         error: 'Rating must be between 1 and 5'
       });
@@ -23,13 +67,15 @@ async function createReview(req, res, next) {
     const review = await reviewsService.createReview({
       userId: req.userId,
       reservationId,
-      rating: parseInt(rating),
+      rating: parsedRating,
       comment: comment || '',
-      dishRatings: dishRatings || []
+      dishRatings: parseDishRatings(dishRatings),
+      imageUrls: extractImageUrls(req)
     });
 
     return res.status(201).json(review);
   } catch (error) {
+    mapUploadError(error);
     next(error);
   }
 }

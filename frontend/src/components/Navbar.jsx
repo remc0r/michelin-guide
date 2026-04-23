@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Search, Menu, X, MapPin, Heart, User, LogOut, CalendarDays } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -16,15 +18,6 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => { setOpen(false); }, [location.pathname]);
-
-  // Check for user authentication
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-    }
-  }, []);
 
   const links = [
     { to: "/restaurants", label: "Restaurants" },
@@ -36,10 +29,10 @@ const Navbar = () => {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
+    logout();
+    setOpen(false);
     setUserMenuOpen(false);
+    navigate('/');
   };
 
   return (

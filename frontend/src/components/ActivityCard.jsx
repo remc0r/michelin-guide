@@ -77,6 +77,19 @@ const ActivityCard = ({ activity }) => {
                 "{activity.data.comment}"
               </p>
             )}
+            {Array.isArray(activity.data.imageUrls) && activity.data.imageUrls.length > 0 && (
+              <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+                {activity.data.imageUrls.map((imageUrl) => (
+                  <img
+                    key={imageUrl}
+                    src={imageUrl}
+                    alt="Photo partagee dans un avis"
+                    className="h-24 w-full rounded-md object-cover border border-gray-200"
+                    loading="lazy"
+                  />
+                ))}
+              </div>
+            )}
           </div>
         );
 

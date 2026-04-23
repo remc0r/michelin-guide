@@ -1,5 +1,6 @@
 const authService = require('../../src/services/authService');
 const authRepository = require('../../src/repositories/authRepository');
+const bcrypt = require('bcryptjs');
 
 // Mock the authRepository
 jest.mock('../../src/repositories/authRepository');
@@ -73,12 +74,13 @@ describe('authService', () => {
     it('should login user successfully with correct credentials', async () => {
       const email = 'test@example.com';
       const password = 'password123';
+      const passwordHash = await bcrypt.hash(password, 10);
 
       const mockUser = {
         _id: 'user123',
         username: 'testuser',
         email: email,
-        passwordHash: 'hashed_password',
+        passwordHash,
         profile: {
           firstName: 'Test',
           lastName: 'User'
@@ -98,11 +100,12 @@ describe('authService', () => {
     it('should throw error with incorrect password', async () => {
       const email = 'test@example.com';
       const password = 'wrongpassword';
+      const passwordHash = await bcrypt.hash('password123', 10);
 
       const mockUser = {
         _id: 'user123',
         email: email,
-        passwordHash: 'hashed_password'
+        passwordHash
       };
 
       authRepository.findByEmail.mockResolvedValue(mockUser);

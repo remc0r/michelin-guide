@@ -6,6 +6,21 @@ const { getDb } = require('../db/mongo');
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
+function createHttpError(message, statusCode) {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  return error;
+}
+
+function sanitizeUser(user) {
+  if (!user) {
+    return null;
+  }
+
+  const { passwordHash: _, ...safeUser } = user;
+  return safeUser;
+}
+
 /**
  * Register a new user
  */
@@ -15,12 +30,12 @@ async function registerUser(userData) {
   // Check if user already exists
   const existingUser = await authRepository.findByEmail(email);
   if (existingUser) {
-    throw new Error('User with this email already exists');
+    throw createHttpError('User with this email already exists', 400);
   }
 
   const existingUsername = await authRepository.findByUsername(username);
   if (existingUsername) {
-    throw new Error('Username already taken');
+    throw createHttpError('Username already taken', 400);
   }
 
   // Hash password
@@ -45,10 +60,8 @@ async function registerUser(userData) {
   const token = generateToken(user._id.toString());
 
   // Return user without password hash
-  const { passwordHash: _, ...userResponse } = user;
-
   return {
-    user: userResponse,
+    user: sanitizeUser(user),
     token
   };
 }
@@ -60,22 +73,20 @@ async function loginUser(email, password) {
   const user = await authRepository.findByEmail(email);
 
   if (!user) {
-    throw new Error('Invalid email or password');
+    throw createHttpError('Invalid email or password', 401);
   }
 
   const isValidPassword = await bcrypt.compare(password, user.passwordHash);
   if (!isValidPassword) {
-    throw new Error('Invalid email or password');
+    throw createHttpError('Invalid email or password', 401);
   }
 
   // Generate JWT token
   const token = generateToken(user._id.toString());
 
   // Return user without password hash
-  const { passwordHash: _, ...userResponse } = user;
-
   return {
-    user: userResponse,
+    user: sanitizeUser(user),
     token
   };
 }
@@ -93,14 +104,11 @@ async function getUserById(userId) {
         { projection: { passwordHash: 0 } }
       );
 
-    if (!user) {
-      return null;
-    }
-
-    return user;
+    return sanitizeUser(user);
   } catch (error) {
     // Fallback to repository if MongoDB is not configured
-    return authRepository.getUserById(userId);
+    const user = await authRepository.getUserById(userId);
+    return sanitizeUser(user);
   }
 }
 

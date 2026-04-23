@@ -119,6 +119,12 @@ async function removeFriend(userId, friendUserId) {
 async function getFriends(userId) {
   const friendships = await friendsRepository.findAcceptedFriendships(userId);
 
+  if (friendships.length === 0) {
+    const emptyFriends = [];
+    emptyFriends.pagination = { total: 0 };
+    return emptyFriends;
+  }
+
   // Get friend details
   const friendIds = friendships.map(f =>
     f.requesterId.toString() === userId.toString() ? f.receiverId : f.requesterId
@@ -127,10 +133,13 @@ async function getFriends(userId) {
   const friends = await friendsRepository.getUsersByIds(friendIds);
 
   // Remove password hashes from response
-  return friends.map(user => {
+  const sanitizedFriends = friends.map(user => {
     const { passwordHash, ...userData } = user;
     return userData;
   });
+
+  sanitizedFriends.pagination = { total: sanitizedFriends.length };
+  return sanitizedFriends;
 }
 
 /**

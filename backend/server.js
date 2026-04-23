@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 
 const apiRoutes = require('./src/routes');
 const { connectToMongo } = require('./src/db/mongo');
@@ -68,6 +69,7 @@ function createApp() {
 
   app.use(cors({ origin: createCorsOriginValidator() }));
   app.use(express.json());
+  app.use('/uploads', express.static(path.resolve(__dirname, 'uploads')));
 
   app.get('/health', (req, res) => {
     res.json({ ok: true });
@@ -82,6 +84,14 @@ function createApp() {
   app.use((err, req, res, next) => {
     if (res.headersSent) {
       return next(err);
+    }
+
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'Each image must be smaller than 5MB' });
+    }
+
+    if (err.code === 'LIMIT_FILE_COUNT') {
+      return res.status(400).json({ error: 'You can upload up to 4 images' });
     }
 
     const statusCode = err.statusCode || err.status || 500;
