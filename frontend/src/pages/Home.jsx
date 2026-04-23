@@ -14,7 +14,7 @@ const Home = () => {
   return (
     <div className="pt-[104px]">
       {/* HERO */}
-      <section className="relative overflow-hidden grain">
+      <section className="relC'est quoi l'humeurative overflow-hidden grain">
         <div className="max-w-7xl mx-auto px-6 pt-10 pb-20">
           <div className="grid lg:grid-cols-12 gap-10 items-end">
             <div className="lg:col-span-7">

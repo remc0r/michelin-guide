@@ -2,51 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700;800&family=Bricolage+Grotesque:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --fork-red: #C8102E;
-  --fork-red-dark: #9B0B22;
-  --fork-red-light: #FFE8ED;
-  --fork-gold: #F5C518;
-  --fork-cream: #FFF8F0;
-  --fork-ink: #1A1A1A;
-  --fork-muted: #6B6B6B;
-  --fork-border: #EAE6DF;
+  /* Michelin Guide Brand Colors */
+  --michelin-red: #C91818;
+  --michelin-red-dark: #A01218;
+  --michelin-red-light: #FFE8E8;
+  --michelin-black: #000000;
+  --michelin-white: #FFFFFF;
+  --michelin-gray: #F5F5F5;
+  --michelin-border: #E5E5E5;
+  --michelin-muted: #6B7280;
 }
 
 html, body {
   margin: 0;
   padding: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  color: var(--fork-ink);
-  background: var(--fork-cream);
+  color: var(--michelin-black);
+  background: var(--michelin-white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, .serif {
   font-family: 'Playfair Display', Georgia, serif;
-  letter-spacing: -0.01em;
-}
-
-.display-font {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
+  font-weight: 500;
 }
 
 ::selection {
-  background: var(--fork-red);
-  color: #fff;
-}
-
-/* Marquee */
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-.marquee-track {
-  animation: marquee 40s linear infinite;
+  background: var(--michelin-red);
+  color: var(--michelin-white);
 }
 
 /* Float animation */
@@ -61,49 +49,23 @@ h1, h2, h3, h4, h5, .serif {
   transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.5s ease;
 }
 .card-tilt:hover {
-  transform: translateY(-6px) rotate(-0.5deg);
-  box-shadow: 0 30px 60px -20px rgba(200, 16, 46, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -15px rgba(201, 24, 24, 0.3);
 }
 
 .img-zoom {
   transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .group:hover .img-zoom {
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
 /* Gradient text */
-.text-gradient-red {
-  background: linear-gradient(135deg, #C8102E 0%, #E63946 100%);
+.text-gradient-michelin {
+  background: linear-gradient(135deg, #C91818 0%, #E53935 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-}
-
-/* Grain */
-.grain::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
-  opacity: 0.08;
-  pointer-events: none;
-  mix-blend-mode: multiply;
-}
-
-/* Ticker dot */
-.live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 9999px;
-  background: #C8102E;
-  box-shadow: 0 0 0 0 rgba(200, 16, 46, 0.6);
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(200, 16, 46, 0.6); }
-  70% { box-shadow: 0 0 0 12px rgba(200, 16, 46, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(200, 16, 46, 0); }
 }
 
 /* Underline hover on nav */
@@ -118,60 +80,76 @@ h1, h2, h3, h4, h5, .serif {
   bottom: -4px;
   width: 0;
   height: 2px;
-  background: var(--fork-red);
+  background: var(--michelin-red);
   transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .nav-link:hover::after, .nav-link.active::after { width: 100%; }
 
 /* Button primary */
 .btn-primary {
-  background: var(--fork-red);
-  color: #fff;
+  background: var(--michelin-red);
+  color: var(--michelin-white);
   border-radius: 9999px;
   padding: 12px 24px;
   font-weight: 600;
   transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.3s ease;
 }
 .btn-primary:hover {
-  background: var(--fork-red-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -10px rgba(200, 16, 46, 0.6);
+  background: var(--michelin-red-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -8px rgba(201, 24, 24, 0.5);
 }
-.btn-ghost {
+
+/* Button secondary */
+.btn-secondary {
+  background: var(--michelin-black);
+  color: var(--michelin-white);
+  border-radius: 9999px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.btn-secondary:hover {
+  background: #1A1A1A;
+  transform: translateY(-1px);
+}
+
+/* Button outline */
+.btn-outline {
   background: transparent;
-  border: 1.5px solid var(--fork-ink);
-  color: var(--fork-ink);
+  border: 1.5px solid var(--michelin-black);
+  color: var(--michelin-black);
   border-radius: 9999px;
   padding: 10px 22px;
   font-weight: 600;
   transition: all 0.2s ease;
 }
-.btn-ghost:hover {
-  background: var(--fork-ink);
-  color: var(--fork-cream);
+.btn-outline:hover {
+  background: var(--michelin-black);
+  color: var(--michelin-white);
 }
 
 @layer base {
   :root {
-    --background: 38 33% 97%;
+    --background: 0 0% 100%;
     --foreground: 0 0% 10%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
-    --primary: 352 77% 43%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 38 30% 94%;
-    --secondary-foreground: 0 0% 10%;
-    --muted: 38 20% 92%;
-    --muted-foreground: 0 0% 40%;
-    --accent: 49 91% 53%;
+    --primary: 353 81% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
     --accent-foreground: 0 0% 10%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 38 25% 88%;
-    --input: 38 25% 88%;
-    --ring: 352 77% 43%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 353 81% 45%;
     --radius: 0.75rem;
   }
 }
@@ -179,4 +157,19 @@ h1, h2, h3, h4, h5, .serif {
 @layer base {
   * { @apply border-border; }
   body { @apply bg-background text-foreground; }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--michelin-gray);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--michelin-muted);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--michelin-black);
 }

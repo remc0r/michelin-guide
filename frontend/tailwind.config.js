@@ -13,6 +13,13 @@ module.exports = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			// Michelin Guide brand colors
+  			michelin: {
+  				red: '#C91818',
+  				black: '#000000',
+  				white: '#FFFFFF',
+  				gray: '#F5F5F5'
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
@@ -24,12 +31,12 @@ module.exports = {
   				foreground: 'hsl(var(--popover-foreground))'
   			},
   			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
+  				DEFAULT: '#C91818', // Michelin red
+  				foreground: '#FFFFFF'
   			},
   			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
+  				DEFAULT: '#000000', // Michelin black
+  				foreground: '#FFFFFF'
   			},
   			muted: {
   				DEFAULT: 'hsl(var(--muted))',
